@@ -115,9 +115,9 @@ def cos_upload_controller():
                 logging.debug('{} --> REQUEST: {} {}'.format(endpoint, bucket_name, formfile.filename))
                 response = fn_cos_upload_file(cos, bucket_name, formfile.filename, formfile)
                 if (response['ResponseMetadata']['HTTPStatusCode'] == 200):
-                    result = ''.join((endpoint, bucket_name, '/', urllib.parse.quote(formfile.filename)))
+                    result = ''.join((endpoint, '/', bucket_name, '/', urllib.parse.quote(formfile.filename)))
                     logging.info('{} --> RESULT: {}'.format(endpoint, result))
-                    return jsonify(result), 200
+                    return result, 200
                 else:
                     raise ValueError('An error ocurrer with the uploading')
             else:
