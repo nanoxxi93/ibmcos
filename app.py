@@ -57,6 +57,7 @@ def fn_cos_create_resource(endpoint, apikey, instanceid):
         config=Config(signature_version="oauth"),
         endpoint_url=endpoint
     )
+    
 
 # Simple upload
 def fn_cos_upload_file(cos, bucket_name, item_name, form_file):
@@ -115,19 +116,23 @@ def cos_upload_controller():
                 response = fn_cos_upload_file(cos, bucket_name, formfile.filename, formfile)
                 if (response['ResponseMetadata']['HTTPStatusCode'] == 200):
                     result = ''.join((endpoint, bucket_name, '/', urllib.parse.quote(formfile.filename)))
+                    logging.info('{} --> RESULT: {}'.format(endpoint, result))
                     return jsonify(result), 200
                 else:
                     raise ValueError('An error ocurrer with the uploading')
             else:
                 raise TypeError('Request does not contain a file')
         else:
-            return jsonify('Method not allowed')
-    except (AssertionError, KeyError, TypeError, ValueError) as e:
+            return 'Method not allowed', 400
+    except KeyError as e:
         logging.exception(e)
-        return jsonify(str(e).split(") ")[-1]), 400
+        return '{} parameter not found'.format(str(e)), 400
+    except (AttributeError, AssertionError, TypeError, ValueError) as e:
+        logging.exception(e)
+        return str(e), 400
     except Exception as e:
         logging.exception(e)
-        return jsonify('Please contact with support'), 400
+        return 'Please contact with support', 400
 
 @app.route('/values')
 def values_controller():
