@@ -1,0 +1,13 @@
+[Unit]
+Description=uWSGI instance to serve IBMCOS
+After=network.target
+
+[Service]
+User=root
+Group=www-data
+WorkingDirectory=/var/www/html/ibmcos
+Environment="PATH=/var/www/html/ibmcos/venv/bin"
+ExecStart=/var/www/html/ibmcos/venv/bin/uwsgi --ini app.ini
+
+[Install]
+WantedBy=multi-user.target
