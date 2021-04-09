@@ -1,13 +1,14 @@
-﻿from flask import Flask, jsonify, request, url_for, render_template
+﻿import json
+from flask import Flask, jsonify, request, url_for, render_template
 from flask import render_template, Blueprint, make_response
 # import uvicorn
 # from fastapi import FastAPI, File, Form, UploadFile
 import logging
+from logdna import LogDNAHandler
 import datetime
-import json
+import urllib.parse
 import ibm_boto3
 from ibm_botocore.client import Config, ClientError
-import urllib.parse
 
 app = Flask(__name__)
 # app = FastAPI()
@@ -32,19 +33,21 @@ class PrefixMiddleware(object):
 # wsgi_app = app.wsgi_app
 app.wsgi_app = PrefixMiddleware(app.wsgi_app, prefix='/api')
 
-log_filename = 'log.log'
-log_miniumlevel = logging.DEBUG
-log_format = '%(asctime)s %(levelname)s %(message)s'
-log_dateformat = '%Y%m%d.%H%M%S'
+ingestionKey = 'b7c813e09f26938d8bcd7c4f38be2a40'
+logdna_options = {
+  'app': 'ibmcos',
+  'level': 'Debug',
+  'index_meta': True
+}
 logging.basicConfig(
-    handlers=[logging.FileHandler(
-        filename=log_filename,
-        encoding='utf-8',
-        mode='a+'
-    )],
-    level=log_miniumlevel,
-    format=log_format,
-    datefmt=log_dateformat)
+    handlers=[
+        logging.FileHandler(filename='log.log', encoding='utf-8', mode='a+'),
+        LogDNAHandler(ingestionKey, logdna_options)
+    ],
+    level=logging.DEBUG,
+    format='%(asctime)s %(levelname)s %(message)s',
+    datefmt='%Y%m%d.%H%M%S'
+)
 
 # Create resource
 def fn_cos_create_resource(endpoint, apikey, instanceid):
